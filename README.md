@@ -27,21 +27,26 @@ Das Projekt verwendet eine `.env`-Datei für alle vertraulichen Konfigurationen.
 
 ```bash
 cp .env.example .env
-
 👉 Öffne die .env in einem Editor und trage deine Daten ein:
 
+env
+Kopieren
+Bearbeiten
 # OpenAI oder OpenRouter API-Key
 OPENAI_API_KEY=dein-openai-api-key
 OPENROUTER_API_KEY=dein-openrouter-api-key
 
+👉 In `.env` kannst du `CACHE_PROBABILITY` anpassen (0.0 – nur neue Nachrichten, 1.0 – nur aus Cache).
+
+
 # Der System-Prompt (wie die KI antworten soll)
 SYSTEM_PROMPT="Du bist ein humorvoller, neugieriger KI-Experte, der kurze, interessante Fakten erzählt. Auf Deutsch. Max. 20 Wörter."
-
 👉 Baue & starte die App:
 
+bash
+Kopieren
+Bearbeiten
 docker compose up --build
-
-
 Die Anwendung ist jetzt erreichbar unter:
 
 ➡️ http://localhost:5000

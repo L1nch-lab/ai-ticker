@@ -1,176 +1,165 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI-Ticker</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <style>
-        .robot-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            margin-top: 50px;
-            position: relative;
-        }
-
-        .robot {
-            width: 120px;
-            height: 120px;
-            background: #444;
-            border-radius: 50%;
-            position: relative;
-            box-shadow: inset -4px -4px 10px rgba(0,0,0,0.4);
-        }
-
-        .robot::before, .robot::after {
-            content: '';
-            width: 25px;
-            height: 25px;
-            background: #666;
-            border-radius: 50%;
-            position: absolute;
-            top: 20px;
-        }
-
-        .robot::before {
-            left: -35px;
-        }
-
-        .robot::after {
-            right: -35px;
-        }
-
-        .eyes {
-            position: absolute;
-            top: 40px;
-            left: 25px;
-            width: 70px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .eye {
-            width: 18px;
-            height: 18px;
-            background: white;
-            border-radius: 50%;
-        }
-
-        .speech-bubble {
-            position: absolute;
-            bottom: 140px; /* direkt über dem Kopf */
-            background: #fff;
-            border: 2px solid #ccc;
-            border-radius: 10px;
-            padding: 15px;
-            max-width: 300px;
-            text-align: center;
-            box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .speech-bubble::after {
-            content: '';
-            position: absolute;
-            bottom: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            border: 10px solid transparent;
-            border-top: 20px solid #fff;
-        }
-
-        #message {
-            font-size: 1rem;
-            color: #333;
-        }
-
-        #countdown {
-            text-align: center;
-            color: gray;
-            font-size: 0.9em;
-            margin-top: 10px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI-Ticker Dashboard</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 20px;
+      padding: 20px;
+      align-items: start;
+    }
+    #visualizerCanvas {
+      border: 2px solid #333;
+      background-color: #fafafa;
+      margin: 0 auto;
+    }
+    #robot-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 100px; /* 👈 hier erhöht */
+      min-height: 400px; /* 👈 mehr Platz nach unten */
+    }
+    #robot-container img {
+      max-width: 200px;
+    }
+    #message {
+      position: absolute;
+      bottom: calc(100% + 10px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #fff;
+      border: 2px solid #333;
+      padding: 12px 16px;
+      border-radius: 10px;
+      max-width: 80%;
+      width: max-content;
+      text-align: center;
+      box-sizing: border-box;
+      word-break: break-word;
+      white-space: normal;
+      z-index: 10;
+    }
+    #message::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 10px;
+      border-style: solid;
+      border-color: #fff transparent transparent transparent;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <div class="logo">AI-Ticker</div>
-        <nav>
-            <a href="#">Startseite</a>
-            <a href="#">Über uns</a>
-            <a href="#">Kontakt</a>
-        </nav>
-    </header>
+  <header>
+    <div class="logo">AI-Ticker Dashboard</div>
+  </header>
 
-    <main>
-        <section class="hero">
-            <h1>Willkommen beim AI-Ticker</h1>
-            <p>Kurze, spannende Fakten zur KI direkt auf den Bildschirm!</p>
-        </section>
+  <main class="dashboard">
+    <section>
+      <h2>KI sucht den besten Weg</h2>
+      <canvas id="visualizerCanvas" width="300" height="300"></canvas>
+    </section>
 
-        <section class="robot-container">
-            <div class="speech-bubble">
-                <div id="message">Lade...</div>
-                <div id="countdown">Nächste Nachricht in <span id="timer">30</span> Sekunden</div>
-            </div>
-            <div class="robot-svg">
-    <svg width="150" height="150" viewBox="0 0 150 150">
-        <!-- Körper -->
-        <circle cx="75" cy="75" r="60" fill="#f0f0f0" stroke="#ccc" stroke-width="3"/>
-        
-        <!-- Augen-Display -->
-        <rect x="40" y="50" width="70" height="30" rx="8" ry="8" fill="#222"/>
-        
-        <!-- Augen -->
-        <circle cx="55" cy="65" r="6" fill="#00ffcc"/>
-        <circle cx="95" cy="65" r="6" fill="#00ffcc"/>
-        
-        <!-- Mund -->
-        <rect x="60" y="90" width="30" height="5" rx="2" ry="2" fill="#444"/>
-        
-        <!-- Antenne-Stab -->
-        <line x1="75" y1="15" x2="75" y2="35" stroke="#ccc" stroke-width="3"/>
-        
-        <!-- Antenne-Kugel -->
-        <circle cx="75" cy="10" r="5" fill="#ff5555"/>
-    </svg>
-</div>
+    <section>
+      <h2>AI-Ticker</h2>
+      <div id="robot-container">
+        <img src="/static/robot.png" alt="Roboter">
+        <div id="message">Lade...</div>
+      </div>
+    </section>
+  </main>
 
-        </section>
-    </main>
+  <footer>
+    &copy; 2025 AI-Ticker Dashboard
+  </footer>
 
-    <footer>
-        &copy; 2025 AI-Ticker
-    </footer>
+  <!-- AI-Ticker -->
+  <script>
+    function loadMessage() {
+      fetch("/api/message")
+        .then(r => r.json())
+        .then(data => {
+          document.getElementById("message").innerText = data.message;
+        });
+    }
+    loadMessage();
+    setInterval(loadMessage, 20000);
+  </script>
 
-    <script>
-        let intervalSeconds = 30;
-        let timer = intervalSeconds;
+  <!-- Pathfinding Visualizer -->
+  <script>
+    const canvas = document.getElementById("visualizerCanvas");
+    const ctx = canvas.getContext("2d");
+    const cols = 20, rows = 20;
+    const cellSize = canvas.width / cols;
+    let grid = [], openSet = [], closedSet = [], start, end, path = [], interval;
 
-        function updateCountdown() {
-            document.getElementById('timer').textContent = timer;
-            if (timer <= 0) {
-                loadMessage();
-                timer = intervalSeconds;
-            } else {
-                timer--;
-            }
+    function Spot(i, j) {
+      this.i = i; this.j = j; this.f = 0; this.g = 0; this.h = 0;
+      this.neighbors = []; this.previous = undefined;
+      this.wall = Math.random() < 0.3;
+      this.show = function (color) {
+        ctx.fillStyle = this.wall ? "#000" : color;
+        ctx.fillRect(this.i * cellSize, this.j * cellSize, cellSize - 1, cellSize - 1);
+      }
+      this.addNeighbors = function (grid) {
+        if (i < cols - 1) this.neighbors.push(grid[i + 1][j]);
+        if (i > 0) this.neighbors.push(grid[i - 1][j]);
+        if (j < rows - 1) this.neighbors.push(grid[i][j + 1]);
+        if (j > 0) this.neighbors.push(grid[i][j - 1]);
+      }
+    }
+
+    function heuristic(a, b) {
+      return Math.abs(a.i - b.i) + Math.abs(a.j - b.j);
+    }
+
+    function setup() {
+      grid = Array.from({ length: cols }, (_, i) => Array.from({ length: rows }, (_, j) => new Spot(i, j)));
+      grid.forEach(row => row.forEach(spot => spot.addNeighbors(grid)));
+      start = grid[0][0]; end = grid[cols - 1][rows - 1];
+      start.wall = false; end.wall = false;
+      openSet = [start]; closedSet = []; path = [];
+    }
+
+    function draw() {
+      if (openSet.length > 0) {
+        let winner = openSet.reduce((best, spot, idx) => spot.f < openSet[best].f ? idx : best, 0);
+        let current = openSet[winner];
+        if (current === end) { clearInterval(interval); console.log("Fertig!"); }
+        openSet.splice(openSet.indexOf(current), 1); closedSet.push(current);
+        for (let neighbor of current.neighbors) {
+          if (!closedSet.includes(neighbor) && !neighbor.wall) {
+            let tempG = current.g + 1; let newPath = false;
+            if (openSet.includes(neighbor)) { if (tempG < neighbor.g) { neighbor.g = tempG; newPath = true; } }
+            else { neighbor.g = tempG; newPath = true; openSet.push(neighbor); }
+            if (newPath) { neighbor.h = heuristic(neighbor, end); neighbor.f = neighbor.g + neighbor.h; neighbor.previous = current; }
+          }
         }
+      } else { clearInterval(interval); console.log("Keine Lösung"); return; }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      grid.flat().forEach(spot => spot.show("#fff"));
+      closedSet.forEach(spot => spot.show("#f8d7da"));
+      openSet.forEach(spot => spot.show("#d1ecf1"));
+      path = []; let temp = closedSet[closedSet.length - 1];
+      while (temp) { path.push(temp); temp = temp.previous; }
+      path.forEach(spot => spot.show("#90ee90"));
+    }
 
-        function loadMessage() {
-            fetch("/api/message")
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById("message").innerText = data.message;
-                })
-                .catch(error => {
-                    document.getElementById("message").innerText = `Fehler: ${error}`;
-                });
-        }
-
-        loadMessage();
-        setInterval(updateCountdown, 1000);
-    </script>
+    function startVisualizer() {
+      setup(); interval = setInterval(draw, 100);
+    }
+    startVisualizer();
+    setInterval(startVisualizer, 20000);
+  </script>
 </body>
 </html>

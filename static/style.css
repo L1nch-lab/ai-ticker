@@ -1,73 +1,101 @@
 body {
     margin: 0;
-    font-family: "Open Sans", Arial, sans-serif;
-    background: #fff;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #fff;
     color: #333;
 }
 
 header {
-    background-color: #005ca9;
-    color: white;
-    padding: 1rem;
+    background-color: #003399;
+    color: #fff;
+    padding: 10px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
 header .logo {
-    font-size: 1.5rem;
+    font-size: 1.4em;
     font-weight: bold;
 }
 
-header nav a {
-    color: white;
-    text-decoration: none;
-    margin-left: 1rem;
+main {
+    margin-top: 10px;
 }
 
-header nav a:hover {
-    text-decoration: underline;
+h2 {
+    color: #003399;
+    border-bottom: 2px solid #003399;
+    padding-bottom: 4px;
+    margin-bottom: 10px;
 }
 
-.hero {
-    background: url('/static/hero.jpg') no-repeat center center;
-    background-size: cover;
-    color: white;
-    padding: 4rem;
-    text-align: center;
+.dashboard {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr 1fr;
+    gap: 20px;
+    padding: 20px;
+    align-items: start;
 }
 
-.hero h1 {
-    font-size: 2.5rem;
+#visualizerCanvas, #chessboard {
+    border: 2px solid #003399;
+    background-color: #f9f9f9;
+    display: block;
+    margin: 0 auto;
 }
 
-.hero p {
-    font-size: 1.2rem;
-}
-
-.message-box {
-    max-width: 600px;
-    margin: 2rem auto;
-    background: #f0f4f8;
-    border: 1px solid #d1e0eb;
-    border-radius: 8px;
-    padding: 2rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    text-align: center;
-    font-size: 1.5rem;
-}
-
-footer {
-    background-color: #f4f4f4;
-    color: #777;
-    text-align: center;
-    padding: 1rem;
-    margin-top: 4rem;
-}
-
-.robot-svg {
+#robot-container {
+    position: relative;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    margin: 20px auto;
+    padding-top: 40px;
+    min-height: 300px;
+}
+
+#robot-container img {
+    max-width: 200px;
+}
+
+/* SPEECH BUBBLE FIX */
+#message {
+    position: absolute;
+    bottom: calc(100% + 15px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border: 2px solid #003399;
+    border-radius: 15px;
+    padding: 15px 20px;
+    max-width: 280px;
+    min-width: 120px;
+    width: max-content;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    z-index: 1000;
+
+    /* Critical Text Containment */
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+    white-space: normal;
+    line-height: 1.4;
+    font-size: 0.9em;
+}
+
+/* Für lange deutsche Wörter */
+#message::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* Responsive Anpassung */
+@media (max-width: 768px) {
+    #message {
+        max-width: 200px;
+        font-size: 0.8em;
+        padding: 10px 15px;
+    }
 }

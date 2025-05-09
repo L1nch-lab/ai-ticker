@@ -1,4 +1,3 @@
-
 .env
 __pycache__/
 *.pyc
@@ -8,5 +7,6 @@ __pycache__/
 *.db
 .DS_Store
 .env.*
+!.env.example
 .envrc
 docker-compose.override.yml
