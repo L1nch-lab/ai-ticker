@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Ticker</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .robot-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 50px;
+            position: relative;
+        }
+
+        .robot {
+            width: 120px;
+            height: 120px;
+            background: #444;
+            border-radius: 50%;
+            position: relative;
+            box-shadow: inset -4px -4px 10px rgba(0,0,0,0.4);
+        }
+
+        .robot::before, .robot::after {
+            content: '';
+            width: 25px;
+            height: 25px;
+            background: #666;
+            border-radius: 50%;
+            position: absolute;
+            top: 20px;
+        }
+
+        .robot::before {
+            left: -35px;
+        }
+
+        .robot::after {
+            right: -35px;
+        }
+
+        .eyes {
+            position: absolute;
+            top: 40px;
+            left: 25px;
+            width: 70px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .eye {
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .speech-bubble {
+            position: absolute;
+            bottom: 140px; /* direkt über dem Kopf */
+            background: #fff;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            padding: 15px;
+            max-width: 300px;
+            text-align: center;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 10px solid transparent;
+            border-top: 20px solid #fff;
+        }
+
+        #message {
+            font-size: 1rem;
+            color: #333;
+        }
+
+        #countdown {
+            text-align: center;
+            color: gray;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">AI-Ticker</div>
+        <nav>
+            <a href="#">Startseite</a>
+            <a href="#">Über uns</a>
+            <a href="#">Kontakt</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>Willkommen beim AI-Ticker</h1>
+            <p>Kurze, spannende Fakten zur KI direkt auf den Bildschirm!</p>
+        </section>
+
+        <section class="robot-container">
+            <div class="speech-bubble">
+                <div id="message">Lade...</div>
+                <div id="countdown">Nächste Nachricht in <span id="timer">30</span> Sekunden</div>
+            </div>
+            <div class="robot-svg">
+    <svg width="150" height="150" viewBox="0 0 150 150">
+        <!-- Körper -->
+        <circle cx="75" cy="75" r="60" fill="#f0f0f0" stroke="#ccc" stroke-width="3"/>
+        
+        <!-- Augen-Display -->
+        <rect x="40" y="50" width="70" height="30" rx="8" ry="8" fill="#222"/>
+        
+        <!-- Augen -->
+        <circle cx="55" cy="65" r="6" fill="#00ffcc"/>
+        <circle cx="95" cy="65" r="6" fill="#00ffcc"/>
+        
+        <!-- Mund -->
+        <rect x="60" y="90" width="30" height="5" rx="2" ry="2" fill="#444"/>
+        
+        <!-- Antenne-Stab -->
+        <line x1="75" y1="15" x2="75" y2="35" stroke="#ccc" stroke-width="3"/>
+        
+        <!-- Antenne-Kugel -->
+        <circle cx="75" cy="10" r="5" fill="#ff5555"/>
+    </svg>
+</div>
+
+        </section>
+    </main>
+
+    <footer>
+        &copy; 2025 AI-Ticker
+    </footer>
+
+    <script>
+        let intervalSeconds = 30;
+        let timer = intervalSeconds;
+
+        function updateCountdown() {
+            document.getElementById('timer').textContent = timer;
+            if (timer <= 0) {
+                loadMessage();
+                timer = intervalSeconds;
+            } else {
+                timer--;
+            }
+        }
+
+        function loadMessage() {
+            fetch("/api/message")
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("message").innerText = data.message;
+                })
+                .catch(error => {
+                    document.getElementById("message").innerText = `Fehler: ${error}`;
+                });
+        }
+
+        loadMessage();
+        setInterval(updateCountdown, 1000);
+    </script>
+</body>
+</html>
