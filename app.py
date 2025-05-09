@@ -108,7 +108,7 @@ def fetch_new_message(existing_messages):
             logging.error(f"❌ Fehler bei {provider['name']}: {e}")
             continue
 
-    # ➤ Fallback, wenn alle Provider fehlschlagen:
+    # ➤ Fallback
     if existing_messages:
         fallback = random.choice(existing_messages)
         logging.info(f"🕑 Alle Provider fehlgeschlagen → Fallback aus Cache: {fallback}")
