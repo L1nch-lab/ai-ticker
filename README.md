@@ -1,52 +1,83 @@
-# AI-Ticker 🦾📰
+# AI-Ticker Dashboard
 
-**AI-Ticker** ist eine minimalistische Webanwendung, die regelmäßig interessante, kurze Fakten oder witzige Aussagen über künstliche Intelligenz präsentiert – perfekt für den Einsatz auf Infodisplays oder als Dashboard-Element in Unternehmen.
+🧠 Ein einfaches Flask-Dashboard, das KI-generierte Nachrichten in einer Sprechblase anzeigt, inkl. Fallback-Cache und mehreren API-Providern.
 
-Die App ruft KI-generierte Nachrichten über OpenAI oder OpenRouter APIs ab und zeigt sie automatisch in einem ansprechenden, professionellen Design mit animiertem Roboter-Avatar an.
+## 🚀 Features
 
----
-
-## 📸 **Features**
-
-✅ Anzeige zufällig generierter, kurzer KI-Fakten  
-✅ Ausgabe als Sprechblase mit animiertem Roboter  
-✅ Automatisches Abrufen neuer Nachrichten alle 30 Sekunden  
-✅ Speicherung bereits abgerufener Nachrichten (zur Wiederverwendung, Token-Sparen)  
-✅ Konfigurierbar via `.env`  
-✅ Deployment-ready via **Docker Compose**
+✅ Flask-Webserver mit `/api/message`-Endpoint  
+✅ OpenAI-kompatible APIs: OpenRouter, Together, DeepInfra (Fallbacks integriert)  
+✅ Nachrichten-Cache mit Ähnlichkeitsprüfung (RapidFuzz)  
+✅ Frontend mit Robotersprechblase (HTML/CSS)  
+✅ Docker-Container inklusive  
+✅ `.env`-Konfiguration
 
 ---
 
-## 🚀 **Setup & Installation**
+## 🖥️ **Lokale Entwicklung**
 
-### 📝 **1️⃣ .env-Datei anlegen**
-
-Das Projekt verwendet eine `.env`-Datei für alle vertraulichen Konfigurationen.
-
-👉 Kopiere die Beispiel-Datei:
+1️⃣ Repository klonen:
 
 ```bash
-cp .env.example .env
-👉 Öffne die .env in einem Editor und trage deine Daten ein:
+git clone https://github.com/deinusername/ai-ticker.git
+cd ai-ticker
+2️⃣ Virtualenv aktivieren:
 
-env
+bash
 Kopieren
 Bearbeiten
-# OpenAI oder OpenRouter API-Key
-OPENAI_API_KEY=dein-openai-api-key
-OPENROUTER_API_KEY=dein-openrouter-api-key
+python3 -m venv .venv
+source .venv/bin/activate
+3️⃣ Abhängigkeiten installieren:
 
-👉 In `.env` kannst du `CACHE_PROBABILITY` anpassen (0.0 – nur neue Nachrichten, 1.0 – nur aus Cache).
+bash
+Kopieren
+Bearbeiten
+pip install -r requirements.txt
+4️⃣ .env erstellen:
 
+bash
+Kopieren
+Bearbeiten
+cp .env.example .env
+→ Fülle deine API-Keys in .env aus (siehe unten)
 
-# Der System-Prompt (wie die KI antworten soll)
-SYSTEM_PROMPT="Du bist ein humorvoller, neugieriger KI-Experte, der kurze, interessante Fakten erzählt. Auf Deutsch. Max. 20 Wörter."
-👉 Baue & starte die App:
+5️⃣ Starten:
+
+bash
+Kopieren
+Bearbeiten
+python app.py
+🐳 Docker
+Bauen & starten:
 
 bash
 Kopieren
 Bearbeiten
 docker compose up --build
-Die Anwendung ist jetzt erreichbar unter:
+→ Zugriff unter http://localhost:5000
 
-➡️ http://localhost:5000
+⚙️ .env Konfiguration
+Beispiel:
+
+env
+Kopieren
+Bearbeiten
+OPENROUTER_API_KEY=your-openrouter-key
+TOGETHER_API_KEY=your-together-key
+DEEPINFRA_API_KEY=your-deepinfra-key
+
+SYSTEM_PROMPT=Du bist ein hilfreicher Assistent.
+CACHE_FILE=message_cache.json
+LAST_FILE=last_messages.json
+FUZZY_THRESHOLD=85
+CACHE_PROBABILITY=0.6
+LAST_LIMIT=3
+📡 Provider Info
+OpenRouter: https://openrouter.ai
+
+Together: https://api.together.ai/models
+
+DeepInfra: https://deepinfra.com
+
+Die App wechselt automatisch zum nächsten Provider, falls einer fehlschlägt.
+
