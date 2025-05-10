@@ -1,0 +1,37 @@
+name: Check requirements.txt consistency
+
+on: [push, pull_request]
+
+jobs:
+  check-requirements:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install requirements
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+
+      - name: Freeze installed packages
+        run: |
+          source venv/bin/activate
+          pip freeze | sort > frozen.txt
+
+      - name: Sort existing requirements.txt
+        run: |
+          sort requirements.txt > sorted_requirements.txt
+
+      - name: Compare requirements.txt with pip freeze
+        run: |
+          diff -u sorted_requirements.txt frozen.txt || (
+            echo "❌ requirements.txt ist nicht aktuell. Bitte mit 'pip freeze > requirements.txt' aktualisieren."
+            exit 1
+          )
