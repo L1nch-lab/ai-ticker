@@ -6,6 +6,7 @@ import os
 import json
 import logging
 import secrets
+import time
 from typing import Optional, List, Dict, Any
 
 from flask import Flask, render_template, jsonify, g
@@ -19,6 +20,7 @@ from flask_assets import Environment, Bundle
 from flasgger import Swagger
 
 from config import config
+from plugin_client import PluginAwareAIClient
 
 # Configure logging
 logging.basicConfig(
@@ -293,7 +295,8 @@ class AIProviderClient:
 cache = MessageCache(config.cache_file, config.max_cache_size)
 recent_tracker = RecentMessagesTracker(config.last_file, config.last_limit)
 prompt_manager = PromptManager(config.prompts_file, config.prompt_profile)
-ai_client = AIProviderClient(config.providers, config.api_timeout)
+# Use the new plugin-aware AI client
+ai_client = PluginAwareAIClient({"providers": config.providers}, config.api_timeout)
 
 logger.info(f"System prompt: '{prompt_manager.system_prompt[:70]}...'")
 logger.info(f"User prompt: '{prompt_manager.user_prompt[:70]}...'")
@@ -405,11 +408,128 @@ def health_check():
               type: integer
     """
     cached_messages = cache.load()
+    
+    # Get provider health status
+    try:
+        provider_health = ai_client.health_check_all() if hasattr(ai_client, 'health_check_all') else {}
+    except Exception as e:
+        logger.warning(f"Failed to get provider health: {e}")
+        provider_health = {}
+    
+    import time
+    
     return jsonify({
         "status": "healthy",
-        "providers": len(config.providers),
-        "cache_size": len(cached_messages)
+        "providers": provider_health,
+        "cache_size": len(cached_messages),
+        "timestamp": cached_messages.get('last_updated') if isinstance(cached_messages, dict) and cached_messages.get('last_updated') else time.time()
     })
+
+
+@app.route("/api/plugins")
+def api_plugins():
+    """
+    Get information about available plugins.
+    ---
+    responses:
+      200:
+        description: Plugin information
+        schema:
+          type: object
+          properties:
+            plugins:
+              type: array
+              description: List of available plugins
+            total:
+              type: integer
+              description: Total number of plugins
+    """
+    try:
+        plugin_manager = ai_client.get_plugin_manager()
+        plugins = plugin_manager.get_plugin_list()
+        
+        return jsonify({
+            "plugins": plugins,
+            "total": len(plugins)
+        })
+    except Exception as e:
+        logger.error(f"Error getting plugin information: {e}")
+        return jsonify({
+            "error": "Failed to get plugin information",
+            "message": str(e)
+        }), 500
+
+
+@app.route("/api/providers")
+def api_providers():
+    """
+    Get information about configured providers.
+    ---
+    responses:
+      200:
+        description: Provider information and health status
+        schema:
+          type: object
+          properties:
+            providers:
+              type: object
+              description: Provider information
+            health_status:
+              type: object
+              description: Health check results
+            available_providers:
+              type: array
+              description: List of available provider names
+    """
+    try:
+        provider_info = ai_client.get_provider_info()
+        health_status = ai_client.health_check_all()
+        available_providers = ai_client.get_available_providers()
+        
+        return jsonify({
+            "providers": provider_info,
+            "health_status": health_status,
+            "available_providers": available_providers
+        })
+    except Exception as e:
+        logger.error(f"Error getting provider information: {e}")
+        return jsonify({
+            "error": "Failed to get provider information",
+            "message": str(e)
+        }), 500
+
+
+@app.route("/api/providers/reload", methods=["POST"])
+def api_reload_providers():
+    """
+    Reload all providers.
+    ---
+    responses:
+      200:
+        description: Providers reloaded successfully
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+            providers:
+              type: array
+    """
+    try:
+        ai_client.reload_providers()
+        available_providers = ai_client.get_available_providers()
+        
+        return jsonify({
+            "status": "success",
+            "message": "Providers reloaded successfully",
+            "providers": available_providers
+        })
+    except Exception as e:
+        logger.error(f"Error reloading providers: {e}")
+        return jsonify({
+            "error": "Failed to reload providers",
+            "message": str(e)
+        }), 500
 
 
 @app.errorhandler(429)

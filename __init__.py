@@ -6,4 +6,4 @@ in a speech bubble, with fallback cache and multiple API providers.
 """
 
 # Project version
-__version__ = "1.0.0"
+__version__ = "1.1.0"

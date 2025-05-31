@@ -25,6 +25,14 @@ DEFAULTS = {
     'RATE_LIMIT_DEFAULT': '100 per hour',
     'RATE_LIMIT_API': '10 per minute',
     'API_TIMEOUT': 30,
+    # Plugin system configuration
+    'PLUGINS_ENABLED': True,
+    'PLUGIN_AUTO_DISCOVERY': True,
+    'PLUGIN_CONFIG_FILE': 'plugin_config.json',
+    'BUILTIN_PLUGINS_ENABLED': True,
+    'CUSTOM_PLUGINS_PATH': 'plugins/custom',
+    'PLUGIN_CACHE_SIZE': 50,
+    'PLUGIN_TIMEOUT': 30,
 }
 
 
@@ -49,6 +57,15 @@ class Config:
         self.rate_limit_api = self._get_str('RATE_LIMIT_API')
         self.api_timeout = self._get_int('API_TIMEOUT')
         self.secret_key = os.getenv('SECRET_KEY', 'dev-key-change-in-production')
+        
+        # Plugin system configuration
+        self.plugins_enabled = self._get_bool('PLUGINS_ENABLED')
+        self.plugin_auto_discovery = self._get_bool('PLUGIN_AUTO_DISCOVERY')
+        self.plugin_config_file = self._get_str('PLUGIN_CONFIG_FILE')
+        self.builtin_plugins_enabled = self._get_bool('BUILTIN_PLUGINS_ENABLED')
+        self.custom_plugins_path = self._get_str('CUSTOM_PLUGINS_PATH')
+        self.plugin_cache_size = self._get_int('PLUGIN_CACHE_SIZE')
+        self.plugin_timeout = self._get_int('PLUGIN_TIMEOUT')
 
         self._validate()
 
@@ -74,6 +91,13 @@ class Config:
         except ValueError:
             logger.warning(f"Invalid {key}: {value}, using default: {DEFAULTS[key]}")
             return DEFAULTS[key]
+    
+    def _get_bool(self, key: str) -> bool:
+        """Get boolean value from environment or defaults."""
+        value = os.getenv(key, str(DEFAULTS[key]))
+        if isinstance(value, bool):
+            return value
+        return str(value).lower() in ('true', '1', 'yes', 'on')
 
     def _load_providers(self) -> List[Dict[str, Any]]:
         """Load and validate API providers."""
@@ -99,7 +123,8 @@ class Config:
         ]
 
         # Filter providers with valid API keys
-        valid_providers = [p for p in all_providers if p["api_key"]]
+        valid_providers = [p for p in all_providers 
+                          if p["api_key"] and p["api_key"] not in ["", "your-openrouter-key", "your-together-key", "your-deepinfra-key"]]
 
         if not valid_providers:
             logger.warning("⚠️ No API providers configured! Set at least one API key.")

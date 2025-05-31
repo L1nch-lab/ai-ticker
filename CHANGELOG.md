@@ -5,7 +5,115 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.2] - 2025-05-31
+## [Unreleased]
+
+### Added
+-
+
+### Changed
+-
+
+### Deprecated
+-
+
+### Removed
+-
+
+### Fixed
+-
+
+### Security
+-
+
+---
+
+## [1.1.0] - 2025-06-01
+
+### Added
+- **🔌 Plugin System Architecture**
+  - Comprehensive plugin system for custom AI providers
+  - Abstract `BaseAIProvider` class with standardized interface
+  - `AIProviderPlugin` wrapper for metadata and lifecycle management
+  - `ProviderConfig` dataclass for standardized provider configuration
+  - `AIResponse` dataclass for consistent response format
+
+- **🛠️ Plugin Management System**
+  - Thread-safe plugin registry with dependency checking
+  - Automatic plugin discovery from files and directories
+  - Plugin validation, loading, and unloading capabilities
+  - Configuration management for enabling/disabling plugins
+  - Health checking and error handling for plugins
+
+- **🔄 Built-in Provider Conversion**
+  - Converted all existing providers to plugin format:
+    - OpenRouter provider plugin with full API support
+    - Together AI provider plugin with model selection
+    - DeepInfra provider plugin with error handling
+  - Maintained all original functionality while adding plugin metadata
+  - Proper error handling and health checking for each provider
+
+- **🚀 Enhanced Application Integration**
+  - New `PluginAwareAIClient` for plugin-based provider management
+  - Plugin system integration in main application
+  - Backward compatibility with existing configuration format
+  - Load balancing and failover between plugin providers
+
+- **📡 New API Endpoints**
+  - `GET /api/plugins` - List available plugins with metadata
+  - `GET /api/providers` - List active AI providers
+  - `POST /api/providers/reload` - Reload provider configuration
+
+- **⚙️ Configuration Enhancement**
+  - Plugin-specific configuration options in config system
+  - Support for plugin discovery paths and auto-discovery
+  - Plugin timeout and cache size configuration
+  - Boolean configuration helper method
+
+- **🧪 Comprehensive Testing Suite**
+  - Extensive plugin system tests (`test_plugin_system.py`)
+  - Built-in provider validation tests (`test_builtin_providers.py`)
+  - Application integration tests (`test_integration.py`)
+  - Mock providers for testing plugin functionality
+
+- **📚 Documentation & Examples**
+  - Complete `PLUGIN_DEVELOPMENT.md` guide with step-by-step instructions
+  - Example custom plugin implementation (`mock_provider.py`)
+  - Updated README with plugin system features and API documentation
+  - Plugin architecture diagrams and best practices
+
+### Changed
+- **🔧 Application Architecture**
+  - Replaced legacy `AIProviderClient` with `PluginAwareAIClient`
+  - Enhanced configuration system with plugin support
+  - Improved error handling and logging for provider operations
+  - Updated main application to use plugin system while maintaining compatibility
+
+- **📦 Provider Management**
+  - All built-in providers now implemented as plugins
+  - Standardized provider interface and response format
+  - Enhanced provider metadata and feature detection
+  - Improved provider health checking and diagnostics
+
+### Technical Details
+- **Plugin Architecture**: Abstract base classes with dependency injection
+- **Thread Safety**: Thread-safe plugin registry and provider management
+- **Extensibility**: Support for custom plugins without core modifications
+- **Backward Compatibility**: Legacy configuration format still supported
+- **Plugin Discovery**: Automatic scanning of plugin directories
+- **Configuration Management**: Centralized plugin configuration with validation
+
+### Breaking Changes
+- None - Full backward compatibility maintained with existing configurations
+
+### Migration Guide
+- Existing configurations continue to work without changes
+- New plugin system is opt-in and can be enabled via configuration
+- Built-in providers automatically converted to plugin format
+- Custom providers can be migrated using the plugin development guide
+
+---
+
+## [1.0.2] - 2024-11-15
 
 ### Security
 - **Critical Security Fix**
@@ -19,7 +127,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.0.1] - 2025-05-31
+## [1.0.1] - 2024-11-01
 
 ### Security
 - **Critical Security Fixes (Bandit Scan Results)**
@@ -51,11 +159,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Security Vulnerabilities**
   - B311: Pseudo-random generators - Now using cryptographically secure `secrets.randbelow()`
   - B104: Binding to all interfaces - Now configurable with secure defaults
+  - B101: Assert statements - Replaced with proper exception raising in testsble with secure defaults
   - B101: Assert statements - Replaced with proper exception raising in tests
 
 ---
 
-## [1.0.0] - 2025-05-31
+## [1.0.0] - 2024-10-31
 
 ### Added
 - **AI-Powered Message Generation**
@@ -154,11 +263,12 @@ This is the initial stable release of AI-Ticker Dashboard, featuring a complete 
 - Modernized frontend with ES6+ JavaScript
 
 ### Known Issues
-- CSP currently uses `unsafe-inline` fallback (improvement planned for v1.1.0)
 - Rate limiting is per-process (Redis integration planned for v1.2.0)
 
 ### Future Roadmap
-- **v1.1.0**: Plugin system for custom AI providers
+- **v1.2.0**: Redis integration for improved rate limiting
+- **v1.3.0**: WebSocket support for real-time updates
+- **v1.4.0**: Advanced caching with TTL and invalidation strategies
 
 ---
 

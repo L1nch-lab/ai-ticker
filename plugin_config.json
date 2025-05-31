@@ -1,0 +1,71 @@
+{
+  "version": "1.1.0",
+  "description": "AI-Ticker Plugin Configuration",
+  "plugins": {
+    "openrouter": {
+      "enabled": true,
+      "priority": 1,
+      "config": {
+        "name": "OpenRouter",
+        "api_key": null,
+        "base_url": "https://openrouter.ai/api/v1",
+        "model": "openai/gpt-4o",
+        "max_tokens": 512,
+        "temperature": 0.7
+      }
+    },
+    "together": {
+      "enabled": true,
+      "priority": 2,
+      "config": {
+        "name": "Together AI",
+        "api_key": null,
+        "base_url": "https://api.together.xyz/v1",
+        "model": "meta-llama/Llama-3.1-70B-Instruct-Turbo",
+        "max_tokens": 512,
+        "temperature": 0.7
+      }
+    },
+    "deepinfra": {
+      "enabled": true,
+      "priority": 3,
+      "config": {
+        "name": "DeepInfra",
+        "api_key": null,
+        "base_url": "https://api.deepinfra.com/v1/openai",
+        "model": "meta-llama/Meta-Llama-3.1-70B-Instruct",
+        "max_tokens": 512,
+        "temperature": 0.7
+      }
+    },
+    "mock": {
+      "enabled": false,
+      "priority": 99,
+      "config": {
+        "name": "Mock Provider",
+        "api_key": "mock-key-for-testing",
+        "base_url": "https://mock.example.com/v1",
+        "model": "mock-model",
+        "max_tokens": 512,
+        "temperature": 0.7
+      }
+    }
+  },
+  "global_settings": {
+    "plugin_discovery": true,
+    "auto_load_builtin": true,
+    "custom_plugin_paths": [
+      "plugins/custom"
+    ],
+    "plugin_timeout": 30,
+    "max_plugins": 10,
+    "health_check_interval": 300,
+    "fallback_behavior": "use_cache"
+  },
+  "metadata": {
+    "created": "2025-05-31",
+    "last_updated": "2025-05-31",
+    "format_version": "1.0",
+    "compatible_versions": ["1.1.0", "1.2.0"]
+  }
+}
