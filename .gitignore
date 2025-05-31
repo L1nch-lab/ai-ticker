@@ -1,12 +1,57 @@
-.env
+# Python
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.sqlite3
-*.db
-.DS_Store
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+
+# Environment
+.env
+.venv/
+venv/
+ENV/
 .env.*
 !.env.example
 .envrc
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# IDE and editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Project specific
+*.sqlite3
+*.db
 docker-compose.override.yml
+message_cache.json
+last_messages.json
+
+# Backup and restore scripts/data
+backup.sh
+restore.sh
+backup_*/
+*.backup
+*.restore
+
+# Migration and cleanup reports
+MIGRATION_REPORT.md
+CLEANUP_REPORT.md
+*_REPORT.md

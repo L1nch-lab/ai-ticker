@@ -1,0 +1,35 @@
+# tests
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+
+# environment
+.env
+.venv/
+venv/
+ENV/
+env/
+.env.*
+!.env.example
+.envrc
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# project specific
+*.sqlite3
+*.db
+docker-compose.override.yml
+message_cache.json
+last_messages.json

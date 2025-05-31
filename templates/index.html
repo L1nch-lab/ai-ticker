@@ -1,62 +1,13 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI-Ticker Dashboard</title>
-  <link rel="stylesheet" href="/static/style.css">
-  <style>
-    .dashboard {
-      display: grid;
-      grid-template-columns: 1fr 1.5fr;
-      gap: 20px;
-      padding: 20px;
-      align-items: start;
-    }
-    #visualizerCanvas {
-      border: 2px solid #333;
-      background-color: #fafafa;
-      margin: 0 auto;
-    }
-    #robot-container {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding-top: 100px; /* 👈 hier erhöht */
-      min-height: 400px; /* 👈 mehr Platz nach unten */
-    }
-    #robot-container img {
-      max-width: 200px;
-    }
-    #message {
-      position: absolute;
-      bottom: calc(100% + 10px);
-      left: 50%;
-      transform: translateX(-50%);
-      background: #fff;
-      border: 2px solid #333;
-      padding: 12px 16px;
-      border-radius: 10px;
-      max-width: 80%;
-      width: max-content;
-      text-align: center;
-      box-sizing: border-box;
-      word-break: break-word;
-      white-space: normal;
-      z-index: 10;
-    }
-    #message::after {
-      content: "";
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      border-width: 10px;
-      border-style: solid;
-      border-color: #fff transparent transparent transparent;
-    }
-  </style>
+  <meta name="description" content="AI-powered dashboard displaying intelligent messages and pathfinding visualization">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.min.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 <body>
   <header>
@@ -65,15 +16,15 @@
 
   <main class="dashboard">
     <section>
-      <h2>KI sucht den besten Weg</h2>
-      <canvas id="visualizerCanvas" width="300" height="300"></canvas>
+      <h2>AI Pathfinding Visualization</h2>
+      <canvas id="visualizerCanvas" width="300" height="300" aria-label="Pathfinding algorithm visualization"></canvas>
     </section>
 
     <section>
       <h2>AI-Ticker</h2>
+      <div id="message" role="status" aria-live="polite" aria-label="AI generated message">Loading...</div>
       <div id="robot-container">
-        <img src="/static/robot.png" alt="Roboter">
-        <div id="message">Lade...</div>
+        <img src="{{ url_for('static', filename='robot.png') }}" alt="AI Robot visualization for generated messages" loading="lazy">
       </div>
     </section>
   </main>
@@ -82,84 +33,222 @@
     &copy; 2025 AI-Ticker Dashboard
   </footer>
 
-  <!-- AI-Ticker -->
-  <script>
-    function loadMessage() {
-      fetch("/api/message")
-        .then(r => r.json())
-        .then(data => {
-          document.getElementById("message").innerText = data.message;
-        });
-    }
-    loadMessage();
-    setInterval(loadMessage, 20000);
+  <!-- AI-Ticker JavaScript -->
+  <script nonce="{{ g.nonce }}">
+    (function() {
+      'use strict';
+      
+      const messageElement = document.getElementById('message');
+      let isLoading = false;
+      
+      async function loadMessage() {
+        if (isLoading) return;
+        
+        isLoading = true;
+        messageElement.classList.add('loading');
+        
+        try {
+          const response = await fetch('/api/message');
+          
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          
+          const data = await response.json();
+          messageElement.textContent = data.message;
+          messageElement.classList.remove('loading');
+          
+        } catch (error) {
+          console.error('Failed to load message:', error);
+          messageElement.textContent = '[Error loading message - please try again later]';
+          messageElement.classList.remove('loading');
+        } finally {
+          isLoading = false;
+        }
+      }
+      
+      // Load initial message
+      loadMessage();
+      
+      // Auto-refresh every 20 seconds
+      setInterval(loadMessage, 20000);
+      
+      // Manual refresh on click
+      messageElement.addEventListener('click', loadMessage);
+    })();
   </script>
 
-  <!-- Pathfinding Visualizer -->
-  <script>
-    const canvas = document.getElementById("visualizerCanvas");
-    const ctx = canvas.getContext("2d");
-    const cols = 20, rows = 20;
-    const cellSize = canvas.width / cols;
-    let grid = [], openSet = [], closedSet = [], start, end, path = [], interval;
+  <!-- Pathfinding Visualizer JavaScript -->
+  <script nonce="{{ g.nonce }}">
+    (function() {
+      'use strict';
+      
+      const canvas = document.getElementById('visualizerCanvas');
+      const ctx = canvas.getContext('2d');
+      const cols = 20;
+      const rows = 20;
+      const cellSize = canvas.width / cols;
+      
+      let grid = [];
+      let openSet = [];
+      let closedSet = [];
+      let start, end, path = [];
+      let animationInterval;
+      let isRunning = false;
 
-    function Spot(i, j) {
-      this.i = i; this.j = j; this.f = 0; this.g = 0; this.h = 0;
-      this.neighbors = []; this.previous = undefined;
-      this.wall = Math.random() < 0.3;
-      this.show = function (color) {
-        ctx.fillStyle = this.wall ? "#000" : color;
-        ctx.fillRect(this.i * cellSize, this.j * cellSize, cellSize - 1, cellSize - 1);
+      class Spot {
+        constructor(i, j) {
+          this.i = i;
+          this.j = j;
+          this.f = 0;
+          this.g = 0;
+          this.h = 0;
+          this.neighbors = [];
+          this.previous = undefined;
+          this.wall = Math.random() < 0.3;
+        }
+
+        show(color) {
+          ctx.fillStyle = this.wall ? '#333' : color;
+          ctx.fillRect(
+            this.i * cellSize + 1, 
+            this.j * cellSize + 1, 
+            cellSize - 2, 
+            cellSize - 2
+          );
+        }
+
+        addNeighbors(grid) {
+          const { i, j } = this;
+          if (i < cols - 1) this.neighbors.push(grid[i + 1][j]);
+          if (i > 0) this.neighbors.push(grid[i - 1][j]);
+          if (j < rows - 1) this.neighbors.push(grid[i][j + 1]);
+          if (j > 0) this.neighbors.push(grid[i][j - 1]);
+        }
       }
-      this.addNeighbors = function (grid) {
-        if (i < cols - 1) this.neighbors.push(grid[i + 1][j]);
-        if (i > 0) this.neighbors.push(grid[i - 1][j]);
-        if (j < rows - 1) this.neighbors.push(grid[i][j + 1]);
-        if (j > 0) this.neighbors.push(grid[i][j - 1]);
+
+      function heuristic(a, b) {
+        return Math.abs(a.i - b.i) + Math.abs(a.j - b.j);
       }
-    }
 
-    function heuristic(a, b) {
-      return Math.abs(a.i - b.i) + Math.abs(a.j - b.j);
-    }
+      function setup() {
+        // Initialize grid
+        grid = Array.from({ length: cols }, (_, i) => 
+          Array.from({ length: rows }, (_, j) => new Spot(i, j))
+        );
+        
+        // Add neighbors to each spot
+        grid.forEach(row => row.forEach(spot => spot.addNeighbors(grid)));
+        
+        // Set start and end points
+        start = grid[0][0];
+        end = grid[cols - 1][rows - 1];
+        start.wall = false;
+        end.wall = false;
+        
+        // Initialize algorithm state
+        openSet = [start];
+        closedSet = [];
+        path = [];
+        isRunning = true;
+      }
 
-    function setup() {
-      grid = Array.from({ length: cols }, (_, i) => Array.from({ length: rows }, (_, j) => new Spot(i, j)));
-      grid.forEach(row => row.forEach(spot => spot.addNeighbors(grid)));
-      start = grid[0][0]; end = grid[cols - 1][rows - 1];
-      start.wall = false; end.wall = false;
-      openSet = [start]; closedSet = []; path = [];
-    }
+      function draw() {
+        if (!isRunning || openSet.length === 0) {
+          clearInterval(animationInterval);
+          isRunning = false;
+          return;
+        }
 
-    function draw() {
-      if (openSet.length > 0) {
-        let winner = openSet.reduce((best, spot, idx) => spot.f < openSet[best].f ? idx : best, 0);
-        let current = openSet[winner];
-        if (current === end) { clearInterval(interval); console.log("Fertig!"); }
-        openSet.splice(openSet.indexOf(current), 1); closedSet.push(current);
-        for (let neighbor of current.neighbors) {
+        // Find spot with lowest f score
+        const winner = openSet.reduce((bestIdx, spot, idx) => 
+          spot.f < openSet[bestIdx].f ? idx : bestIdx, 0
+        );
+        
+        const current = openSet[winner];
+
+        // Check if we reached the end
+        if (current === end) {
+          clearInterval(animationInterval);
+          isRunning = false;
+          console.log('Path found!');
+          return;
+        }
+
+        // Move current from openSet to closedSet
+        openSet.splice(winner, 1);
+        closedSet.push(current);
+
+        // Check neighbors
+        for (const neighbor of current.neighbors) {
           if (!closedSet.includes(neighbor) && !neighbor.wall) {
-            let tempG = current.g + 1; let newPath = false;
-            if (openSet.includes(neighbor)) { if (tempG < neighbor.g) { neighbor.g = tempG; newPath = true; } }
-            else { neighbor.g = tempG; newPath = true; openSet.push(neighbor); }
-            if (newPath) { neighbor.h = heuristic(neighbor, end); neighbor.f = neighbor.g + neighbor.h; neighbor.previous = current; }
+            const tempG = current.g + 1;
+            let newPath = false;
+
+            if (openSet.includes(neighbor)) {
+              if (tempG < neighbor.g) {
+                neighbor.g = tempG;
+                newPath = true;
+              }
+            } else {
+              neighbor.g = tempG;
+              newPath = true;
+              openSet.push(neighbor);
+            }
+
+            if (newPath) {
+              neighbor.h = heuristic(neighbor, end);
+              neighbor.f = neighbor.g + neighbor.h;
+              neighbor.previous = current;
+            }
           }
         }
-      } else { clearInterval(interval); console.log("Keine Lösung"); return; }
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      grid.flat().forEach(spot => spot.show("#fff"));
-      closedSet.forEach(spot => spot.show("#f8d7da"));
-      openSet.forEach(spot => spot.show("#d1ecf1"));
-      path = []; let temp = closedSet[closedSet.length - 1];
-      while (temp) { path.push(temp); temp = temp.previous; }
-      path.forEach(spot => spot.show("#90ee90"));
-    }
 
-    function startVisualizer() {
-      setup(); interval = setInterval(draw, 100);
-    }
-    startVisualizer();
-    setInterval(startVisualizer, 20000);
+        // Visualize current state
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw all spots
+        grid.flat().forEach(spot => spot.show('#f9f9f9'));
+        
+        // Draw closed set (red)
+        closedSet.forEach(spot => spot.show('#ffcdd2'));
+        
+        // Draw open set (green)
+        openSet.forEach(spot => spot.show('#c8e6c9'));
+        
+        // Draw current path (blue)
+        path = [];
+        let temp = current;
+        while (temp) {
+          path.push(temp);
+          temp = temp.previous;
+        }
+        path.forEach(spot => spot.show('#81c784'));
+        
+        // Highlight start and end
+        start.show('#4caf50');
+        end.show('#f44336');
+      }
+
+      function startVisualizer() {
+        if (isRunning) {
+          clearInterval(animationInterval);
+        }
+        
+        setup();
+        animationInterval = setInterval(draw, 50);
+      }
+
+      // Start initial visualization
+      startVisualizer();
+      
+      // Restart every 20 seconds
+      setInterval(startVisualizer, 20000);
+      
+      // Allow manual restart on canvas click
+      canvas.addEventListener('click', startVisualizer);
+      canvas.style.cursor = 'pointer';
+    })();
   </script>
 </body>
 </html>
