@@ -3,6 +3,9 @@ name: Check requirements.txt consistency
 
 on: [push, pull_request]
 
+permissions:
+  contents: read
+
 jobs:
   check-requirements:
     runs-on: ubuntu-latest
