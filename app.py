@@ -456,7 +456,7 @@ def api_plugins():
         logger.error(f"Error getting plugin information: {e}")
         return jsonify({
             "error": "Failed to get plugin information",
-            "message": str(e)
+            "message": "An internal error occurred."
         }), 500
 
 
@@ -495,7 +495,7 @@ def api_providers():
         logger.error(f"Error getting provider information: {e}")
         return jsonify({
             "error": "Failed to get provider information",
-            "message": str(e)
+            "message": "An internal error occurred."
         }), 500
 
 
@@ -528,7 +528,7 @@ def api_reload_providers():
         logger.error(f"Error reloading providers: {e}")
         return jsonify({
             "error": "Failed to reload providers",
-            "message": str(e)
+            "message": "An internal error occurred."
         }), 500
 
 

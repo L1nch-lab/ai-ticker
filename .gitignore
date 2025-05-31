@@ -43,16 +43,34 @@ Thumbs.db
 docker-compose.override.yml
 message_cache.json
 last_messages.json
+plugin_config.json
 
-# Backup and restore scripts/data
+# Logs and temporary files
+*.log
+*.tmp
+temp/
+logs/
+
+# Plugin system
+plugins/custom/*
+!plugins/custom/__init__.py
+!plugins/custom/*.example.py
+
+# Test outputs
+.pytest_cache/
+.coverage
+htmlcov/
+test_output/
+
+# Development and deployment scripts
 backup.sh
 restore.sh
 backup_*/
 *.backup
 *.restore
-start-production.sh
 
-# Migration and cleanup reports
+# Reports and documentation artifacts
 MIGRATION_REPORT.md
 CLEANUP_REPORT.md
 *_REPORT.md
+VALIDATION_REPORT.md

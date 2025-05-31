@@ -1,0 +1,54 @@
+{
+  "version": "1.1.0",
+  "description": "AI-Ticker Plugin Configuration Template",
+  "plugins": {
+    "openrouter": {
+      "enabled": true,
+      "priority": 1,
+      "config": {
+        "name": "OpenRouter",
+        "api_key": null,
+        "base_url": "https://openrouter.ai/api/v1",
+        "default_model": "meta-llama/llama-3.1-8b-instruct:free",
+        "timeout": 30,
+        "max_retries": 3
+      }
+    },
+    "together": {
+      "enabled": true,
+      "priority": 2,
+      "config": {
+        "name": "Together AI",
+        "api_key": null,
+        "base_url": "https://api.together.xyz/v1",
+        "default_model": "meta-llama/Llama-3-8b-chat-hf",
+        "timeout": 30,
+        "max_retries": 3
+      }
+    },
+    "deepinfra": {
+      "enabled": true,
+      "priority": 3,
+      "config": {
+        "name": "DeepInfra",
+        "api_key": null,
+        "base_url": "https://api.deepinfra.com/v1/openai",
+        "default_model": "meta-llama/Meta-Llama-3-8B-Instruct",
+        "timeout": 30,
+        "max_retries": 3
+      }
+    }
+  },
+  "discovery": {
+    "auto_discovery": true,
+    "plugin_paths": [
+      "plugins/custom"
+    ],
+    "scan_interval": 300
+  },
+  "cache": {
+    "enabled": true,
+    "max_size": 1000,
+    "ttl": 3600
+  }
+}
