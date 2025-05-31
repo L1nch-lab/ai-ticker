@@ -50,6 +50,7 @@ restore.sh
 backup_*/
 *.backup
 *.restore
+start-production.sh
 
 # Migration and cleanup reports
 MIGRATION_REPORT.md

@@ -4,7 +4,6 @@ Enhanced with security, caching, and multiple API providers.
 """
 import os
 import json
-import random
 import logging
 import secrets
 from typing import Optional, List, Dict, Any
@@ -308,7 +307,7 @@ def get_ai_message() -> str:
     recent_messages = recent_tracker.load()
     
     # Try cached message first (based on probability)
-    if cached_messages and random.random() < config.cache_probability:
+    if cached_messages and secrets.randbelow(100) < int(config.cache_probability * 100):
         # Prefer messages not recently used
         available = [msg for msg in cached_messages if msg not in recent_messages]
         
@@ -317,7 +316,7 @@ def get_ai_message() -> str:
             available = cached_messages
         
         if available:
-            selected = random.choice(available)
+            selected = available[secrets.randbelow(len(available))]
             logger.info("🔁 Using cached message")
             recent_tracker.add_message(selected)
             return selected
@@ -338,7 +337,7 @@ def get_ai_message() -> str:
     
     # Fallback to cached message
     if cached_messages:
-        fallback = random.choice(cached_messages)
+        fallback = cached_messages[secrets.randbelow(len(cached_messages))]
         logger.info("🕑 Using fallback from cache")
         recent_tracker.add_message(fallback)
         return fallback + " (from archive)"
@@ -431,9 +430,17 @@ def internal_error(e):
 
 if __name__ == "__main__":
     logger.info("Starting AI-Ticker dashboard...")
+    # Use localhost for development, 0.0.0.0 only when explicitly configured
+    host = os.getenv('FLASK_HOST', '127.0.0.1')
+    port = int(os.getenv('FLASK_PORT', '5000'))
+    debug = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
+    
+    if host == "0.0.0.0":
+        logger.warning("⚠️  Binding to all interfaces (0.0.0.0) - ensure this is intended for production")
+    
     app.run(
-        host="0.0.0.0",
-        port=5000,
-        debug=False,
+        host=host,
+        port=port,
+        debug=debug,
         ssl_context=None
     )

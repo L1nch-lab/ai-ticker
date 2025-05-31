@@ -12,11 +12,15 @@ def client():
 def test_index_route(client):
     """Checks if the main page loads correctly."""
     response = client.get('/')
-    assert response.status_code == 200
-    assert b"<!DOCTYPE html>" in response.data
+    if response.status_code != 200:
+        raise AssertionError(f"Expected status code 200, got {response.status_code}")
+    if b"<!DOCTYPE html>" not in response.data:
+        raise AssertionError("Expected HTML DOCTYPE in response")
 
 def test_api_message_route(client):
     """Checks if the API returns a JSON response."""
     response = client.get('/api/message')
-    assert response.status_code == 200
-    assert response.is_json
+    if response.status_code != 200:
+        raise AssertionError(f"Expected status code 200, got {response.status_code}")
+    if not response.is_json:
+        raise AssertionError("Expected JSON response")

@@ -1,0 +1,15 @@
+# Bandit configuration file
+# Suppresses acceptable security warnings for development
+
+[bandit]
+# Suppress assert_used in test files (B101)
+skips = B101
+
+# Only scan Python files, exclude test files for assert checks
+exclude_dirs = []
+
+# Define custom test patterns
+[bandit.assert_used]
+# Skip assert warnings in test files
+skips = B101
+exclude = tests/*

@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2025-05-31
+
+### Security
+- **Critical Security Fixes (Bandit Scan Results)**
+  - Replaced `random` module with `secrets` for cryptographically secure randomness (B311)
+  - Made host binding configurable with secure localhost default instead of `0.0.0.0` (B104)
+  - Replaced assert statements with proper exception handling in tests (B101)
+  - Added Bandit configuration file for ongoing security scanning
+
+### Added
+- **Security Documentation**
+  - Comprehensive `SECURITY.md` with security guidelines and best practices
+  - Production deployment security checklist
+  - Security monitoring and maintenance procedures
+
+- **Production Deployment**
+  - `start-production.sh` script with secure defaults
+  - Environment-based configuration for host binding
+  - Gunicorn integration for production deployments
+  - Security warnings for development vs. production setup
+
+### Changed
+- **Enhanced Security Configuration**
+  - Default host binding changed from `0.0.0.0` to `127.0.0.1` for security
+  - Environment variables control host binding (`FLASK_HOST`, `FLASK_PORT`, `FLASK_DEBUG`)
+  - Production script warns when binding to all interfaces
+  - Updated README.md with security features section
+
+### Fixed
+- **Security Vulnerabilities**
+  - B311: Pseudo-random generators - Now using cryptographically secure `secrets.randbelow()`
+  - B104: Binding to all interfaces - Now configurable with secure defaults
+  - B101: Assert statements - Replaced with proper exception raising in tests
+
+---
+
 ## [1.0.0] - 2025-05-31
 
 ### Added

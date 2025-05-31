@@ -10,6 +10,18 @@ A modern Flask-based dashboard that displays AI-generated messages with pathfind
 - **Modern UI**: Responsive design with speech bubble animations
 - **Pathfinding Visualizer**: Interactive A* algorithm demonstration
 - **Production Ready**: Comprehensive logging, error handling, and monitoring
+- **Security Hardened**: Passes security scans, secure defaults, and best practices
+
+## 🔒 Security Features
+
+- **Cryptographically Secure**: Uses `secrets` module for random operations
+- **Configurable Host Binding**: Secure localhost default, production-ready options
+- **Content Security Policy**: XSS protection with nonce-based CSP
+- **Rate Limiting**: Protection against abuse and DoS attacks
+- **Input Validation**: Comprehensive request validation and sanitization
+- **Security Headers**: Full security header implementation with Talisman
+
+See [SECURITY.md](SECURITY.md) for detailed security documentation.
 
 ## 🚀 Quick Start
 
