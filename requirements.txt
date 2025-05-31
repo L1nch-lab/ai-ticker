@@ -1,77 +1,15 @@
-# AI-Ticker v1.1.0 Dependencies
-# Python 3.9+ compatible
-
-# Flask Web Framework
-Flask==2.3.3
+Flask==3.0.0
 Flask-Assets==2.1.0
 Flask-Compress==1.17
 Flask-Limiter==3.11.0
-flask-talisman==1.1.0
-flasgger==0.9.7.1
-
-# AI and HTTP Libraries
-openai==1.82.1
-httpx==0.28.1
-httpcore==1.0.9
-h11==0.16.0
-
-# Security and Configuration
-python-dotenv==1.1.0
-rapidfuzz==3.13.0
-pydantic==1.10.22
-PyYAML==6.0.2
-bandit==1.8.3
-
-# Web Server
-gunicorn==23.0.0
-
-# Core Dependencies
-click==8.1.8
-Jinja2==3.1.6
-Werkzeug==3.1.3
-MarkupSafe==3.0.2
-itsdangerous==2.2.0
-blinker==1.9.0
-certifi==2025.4.26
-
-# Utilities
-cssmin==0.2.0
-webassets==2.0
-Deprecated==1.2.18
-six==1.17.0
-wrapt==1.17.2
-
-# Performance
-Brotli==1.1.0
-zstandard==0.23.0
-
-# Development and Testing
-pytest==8.3.5
-pytest-flask==1.3.0
-
-# Additional Dependencies
-anyio==4.9.0
+RapidFuzz==3.13.0
 attrs==23.2.0
-distro==1.9.0
-idna==3.10
-iniconfig==2.1.0
-jiter==0.10.0
-jsonschema==4.24.0
-jsonschema-specifications==2024.10.1
-limits==5.2.0
-markdown-it-py==3.0.0
-mdurl==0.1.2
-mistune==3.1.3
-ordered-set==4.1.0
-packaging==25.0
-pbr==6.1.1
-pluggy==1.6.0
-Pygments==2.19.1
-referencing==0.36.2
-rich==13.9.4
-rpds-py==0.25.1
-setuptools==80.9.0
-sniffio==1.3.1
-stevedore==5.4.1
-tqdm==4.67.1
-typing_extensions==4.13.2
+click==8.1.8
+flasgger==0.9.7.1
+flask-talisman==1.1.0
+gunicorn==23.0.0
+openai==1.82.1
+pandas==2.1.4
+pytest==7.4.3
+pytz==2023.4
+requests==2.31.0
