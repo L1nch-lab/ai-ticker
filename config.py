@@ -27,9 +27,10 @@ DEFAULTS = {
     'API_TIMEOUT': 30,
 }
 
+
 class Config:
     """Configuration class for AI-Ticker application."""
-    
+
     def __init__(self):
         self.providers = self._load_providers()
         self.fuzzy_threshold = self._get_int('FUZZY_THRESHOLD')
@@ -48,14 +49,14 @@ class Config:
         self.rate_limit_api = self._get_str('RATE_LIMIT_API')
         self.api_timeout = self._get_int('API_TIMEOUT')
         self.secret_key = os.getenv('SECRET_KEY', 'dev-key-change-in-production')
-        
+
         self._validate()
-    
+
     def _get_str(self, key: str, default_key: str = None) -> str:
         """Get string value from environment or defaults."""
         default = DEFAULTS.get(default_key or key, '')
         return os.getenv(key, default)
-    
+
     def _get_int(self, key: str) -> int:
         """Get integer value from environment or defaults."""
         value = os.getenv(key, str(DEFAULTS[key]))
@@ -64,7 +65,7 @@ class Config:
         except ValueError:
             logger.warning(f"Invalid {key}: {value}, using default: {DEFAULTS[key]}")
             return DEFAULTS[key]
-    
+
     def _get_float(self, key: str) -> float:
         """Get float value from environment or defaults."""
         value = os.getenv(key, str(DEFAULTS[key]))
@@ -73,7 +74,7 @@ class Config:
         except ValueError:
             logger.warning(f"Invalid {key}: {value}, using default: {DEFAULTS[key]}")
             return DEFAULTS[key]
-    
+
     def _load_providers(self) -> List[Dict[str, Any]]:
         """Load and validate API providers."""
         all_providers = [
@@ -96,46 +97,47 @@ class Config:
                 "model": "meta-llama/Meta-Llama-3.1-70B-Instruct"
             }
         ]
-        
+
         # Filter providers with valid API keys
         valid_providers = [p for p in all_providers if p["api_key"]]
-        
+
         if not valid_providers:
             logger.warning("⚠️ No API providers configured! Set at least one API key.")
         else:
             provider_names = [p["name"] for p in valid_providers]
             logger.info(f"Configured providers: {', '.join(provider_names)}")
-        
+
         return valid_providers
-    
+
     def _validate(self):
         """Validate configuration values."""
         issues = []
-        
+
         if not (0 <= self.cache_probability <= 1):
             issues.append("CACHE_PROBABILITY must be between 0 and 1")
-        
+
         if not (0 <= self.fuzzy_threshold <= 100):
             issues.append("FUZZY_THRESHOLD must be between 0 and 100")
-        
+
         if self.last_limit < 1:
             issues.append("LAST_LIMIT must be at least 1")
-        
+
         if self.max_cache_size < 1:
             issues.append("MAX_CACHE_SIZE must be at least 1")
-        
+
         if self.compress_level not in range(1, 10):
             issues.append("COMPRESS_LEVEL must be between 1 and 9")
-        
+
         if self.api_timeout < 1:
             issues.append("API_TIMEOUT must be at least 1 second")
-        
+
         if issues:
             for issue in issues:
                 logger.error(f"Configuration error: {issue}")
             raise ValueError("Configuration validation failed")
-        
+
         logger.info("Configuration validation passed")
+
 
 # Create global config instance
 config = Config()
