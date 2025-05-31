@@ -435,7 +435,9 @@ if __name__ == "__main__":
     port = int(os.getenv('FLASK_PORT', '5000'))
     debug = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
     
-    if host == "0.0.0.0":
+    # Security warning for binding to all interfaces
+    all_interfaces = "0.0.0.0"  # nosec B104 - intentional check for security warning
+    if host == all_interfaces:
         logger.warning("⚠️  Binding to all interfaces (0.0.0.0) - ensure this is intended for production")
     
     app.run(
