@@ -9,6 +9,7 @@ import subprocess
 import sys
 from datetime import datetime
 from typing import Dict, List, Optional
+from urllib.parse import urlparse # Add import
 
 try:
     import requests
@@ -194,12 +195,11 @@ def main():
             check=True
         )
         remote_url = result.stdout.strip()
-        if 'github.com' in remote_url:
-            # Extract owner/repo from URL
-            if remote_url.startswith('https://'):
-                repo = remote_url.split('github.com/')[-1].replace('.git', '')
-            elif remote_url.startswith('git@'):
-                repo = remote_url.split(':')[-1].replace('.git', '')
+        parsed_url = urlparse(remote_url)
+        if parsed_url.hostname == 'github.com' or (parsed_url.hostname and parsed_url.hostname.endswith('.github.com')):
+            path_parts = parsed_url.path.strip('/').split('/')
+            if len(path_parts) >= 2:
+                repo = f'{path_parts[0]}/{path_parts[1]}'.replace('.git', '')
     except subprocess.CalledProcessError:
         pass
     
