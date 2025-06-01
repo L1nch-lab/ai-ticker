@@ -1,0 +1,55 @@
+# Development Docker Compose for AI-Ticker
+# Quick setup for development environment
+
+version: '3.8'
+
+services:
+  ai-ticker-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    ports:
+      - "5000:5000"
+      - "5678:5678"  # Debug port
+    volumes:
+      - .:/app
+      - pip-cache:/root/.cache/pip
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+      - PYTHONPATH=/app
+    command: >
+      sh -c "pip install -r requirements.txt &&
+             python -m pytest tests/ --cov=. --cov-report=html &&
+             python app.py"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis for caching (optional)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  # PostgreSQL for production-like testing (optional)
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ai_ticker_dev
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  pip-cache:
+  redis-data:
+  postgres-data:

@@ -1,0 +1,184 @@
+name: Repository Health Monitor
+
+on:
+  schedule:
+    # Run daily at 6 AM UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Full history for analysis
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests gitpython
+    
+    - name: Check repository health
+      id: health_check
+      run: |
+        python scripts/health-check.py
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Generate health report
+      run: |
+        echo "# Repository Health Report" > health-report.md
+        echo "Generated on: $(date)" >> health-report.md
+        echo "" >> health-report.md
+        cat health-results.md >> health-report.md
+    
+    - name: Upload health report
+      uses: actions/upload-artifact@v4
+      with:
+        name: health-report
+        path: health-report.md
+        retention-days: 30
+    
+    - name: Create issue for critical issues
+      if: steps.health_check.outputs.critical_issues == 'true'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const reportContent = fs.readFileSync('health-report.md', 'utf8');
+          
+          github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: '🚨 Repository Health Alert - Critical Issues Found',
+            body: `## Automated Health Check Alert\n\n${reportContent}\n\n---\n*This issue was automatically created by the Repository Health Monitor workflow.*`,
+            labels: ['health-check', 'critical', 'automation']
+          });
+
+  dependency-audit:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install safety pip-audit
+    
+    - name: Run security audit
+      run: |
+        echo "# Dependency Security Audit" > audit-report.md
+        echo "Generated on: $(date)" >> audit-report.md
+        echo "" >> audit-report.md
+        
+        echo "## Safety Check" >> audit-report.md
+        safety check --json || echo "Safety check completed with findings"
+        
+        echo "" >> audit-report.md
+        echo "## Pip Audit" >> audit-report.md
+        pip-audit --format=json || echo "Pip audit completed with findings"
+    
+    - name: Upload audit report
+      uses: actions/upload-artifact@v4
+      with:
+        name: dependency-audit
+        path: audit-report.md
+        retention-days: 30
+
+  workflow-performance:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Analyze workflow performance
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const { execSync } = require('child_process');
+          
+          // Get workflow runs from the last 30 days
+          const thirtyDaysAgo = new Date();
+          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+          
+          const workflows = await github.rest.actions.listWorkflowRunsForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            created: `>=${thirtyDaysAgo.toISOString()}`,
+            per_page: 100
+          });
+          
+          const stats = {
+            total: workflows.data.workflow_runs.length,
+            success: 0,
+            failure: 0,
+            cancelled: 0,
+            avgDuration: 0
+          };
+          
+          let totalDuration = 0;
+          let completedRuns = 0;
+          
+          workflows.data.workflow_runs.forEach(run => {
+            if (run.conclusion === 'success') stats.success++;
+            else if (run.conclusion === 'failure') stats.failure++;
+            else if (run.conclusion === 'cancelled') stats.cancelled++;
+            
+            if (run.created_at && run.updated_at) {
+              const duration = new Date(run.updated_at) - new Date(run.created_at);
+              totalDuration += duration;
+              completedRuns++;
+            }
+          });
+          
+          if (completedRuns > 0) {
+            stats.avgDuration = Math.round(totalDuration / completedRuns / 1000 / 60); // minutes
+          }
+          
+          const successRate = ((stats.success / stats.total) * 100).toFixed(1);
+          
+          const report = `# Workflow Performance Report
+          
+Generated on: ${new Date().toISOString()}
+
+## Summary (Last 30 Days)
+- **Total Runs**: ${stats.total}
+- **Success Rate**: ${successRate}%
+- **Successful**: ${stats.success}
+- **Failed**: ${stats.failure}
+- **Cancelled**: ${stats.cancelled}
+- **Average Duration**: ${stats.avgDuration} minutes
+
+## Health Status
+${successRate >= 90 ? '🟢 **Excellent**' : successRate >= 80 ? '🟡 **Good**' : '🔴 **Needs Attention**'}
+
+## Recommendations
+${successRate < 80 ? '- Investigate failing workflows\n- Consider workflow optimizations\n- Review timeout settings' : '- Workflows are performing well\n- Continue monitoring'}
+          `;
+          
+          require('fs').writeFileSync('workflow-performance.md', report);
+    
+    - name: Upload performance report
+      uses: actions/upload-artifact@v4
+      with:
+        name: workflow-performance
+        path: workflow-performance.md
+        retention-days: 30

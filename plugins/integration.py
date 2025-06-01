@@ -241,4 +241,49 @@ def load_providers_from_env() -> Dict[str, Any]:
             "model": "meta-llama/Meta-Llama-3.1-70B-Instruct"
         })
     
+    # Anthropic
+    if os.getenv("ANTHROPIC_API_KEY"):
+        providers.append({
+            "name": "Anthropic",
+            "api_key": os.getenv("ANTHROPIC_API_KEY"),
+            "base_url": "https://api.anthropic.com",
+            "model": "claude-3-5-sonnet-20241022"
+        })
+    
+    # Groq
+    if os.getenv("GROQ_API_KEY"):
+        providers.append({
+            "name": "Groq",
+            "api_key": os.getenv("GROQ_API_KEY"),
+            "base_url": "https://api.groq.com/openai/v1",
+            "model": "llama-3.1-70b-versatile"
+        })
+    
+    # Google Gemini
+    if os.getenv("GOOGLE_AI_API_KEY"):
+        providers.append({
+            "name": "Gemini",
+            "api_key": os.getenv("GOOGLE_AI_API_KEY"),
+            "base_url": "https://generativelanguage.googleapis.com",
+            "model": "gemini-1.5-pro"
+        })
+    
+    # Mistral AI
+    if os.getenv("MISTRAL_API_KEY"):
+        providers.append({
+            "name": "Mistral",
+            "api_key": os.getenv("MISTRAL_API_KEY"),
+            "base_url": "https://api.mistral.ai",
+            "model": "mistral-large-latest"
+        })
+    
+    # You.com
+    if os.getenv("YOUCOM_API_KEY"):
+        providers.append({
+            "name": "You.com",
+            "api_key": os.getenv("YOUCOM_API_KEY"),
+            "base_url": "https://chat-api.you.com",
+            "model": "smart"
+        })
+    
     return {"providers": providers}

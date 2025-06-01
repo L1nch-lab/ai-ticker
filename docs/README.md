@@ -1,12 +1,13 @@
-# AI-Ticker - Detailed Documentation
+# AI-Ticker - Comprehensive Documentation
 
 ## Table of Contents
 
 1. [Plugin System](#plugin-system)
 2. [Configuration](#configuration)
-3. [Tests](#tests)
+3. [Testing](#testing)
 4. [Development](#development)
 5. [Deployment](#deployment)
+6. [Troubleshooting](#troubleshooting)
 
 ## Plugin System
 
@@ -14,9 +15,14 @@
 The AI-Ticker plugin system enables modular AI providers through dynamic plugin loading.
 
 ### Available Providers
-- **OpenRouter** - Multi-model platform
-- **Together AI** - Open-source models
-- **DeepInfra** - Serverless GPU inference
+- **OpenRouter** - Multi-model platform with access to various AI models
+- **Together AI** - Open-source models with competitive pricing
+- **DeepInfra** - Serverless GPU inference platform
+- **Anthropic** - Claude models for advanced reasoning
+- **Groq** - Ultra-fast inference for real-time applications
+- **Google Gemini** - Google's advanced language models
+- **Mistral** - European AI provider with excellent performance
+- **You.com** - Search-enhanced AI responses
 
 ### Plugin Development
 See [PLUGIN_DEVELOPMENT.md](../PLUGIN_DEVELOPMENT.md) for detailed guide on developing custom plugins.
@@ -72,7 +78,7 @@ RATE_LIMIT_DEFAULT=100 per hour
 }
 ```
 
-## Tests
+## Testing
 
 ### Running Test Suite
 ```bash
@@ -151,18 +157,18 @@ python app.py
 # With Gunicorn
 ./start-production.sh
 
-# Mit Docker
+# With Docker
 docker-compose up -d
 
-# Mit systemd (siehe SECURITY.md)
+# With systemd (see SECURITY.md)
 ```
 
-### Docker-Deployment
+### Docker Deployment
 ```bash
-# Image bauen
+# Build image
 docker build -t ai-ticker .
 
-# Container starten
+# Start container
 docker run -d \
   --name ai-ticker \
   -p 8080:8080 \
@@ -170,51 +176,51 @@ docker run -d \
   ai-ticker
 ```
 
-### Umgebungsanforderungen
+### Environment Requirements
 - Python 3.9+
-- 512MB RAM (minimal)
-- Internetverbindung für AI-APIs
-- Optionaler Reverse-Proxy (nginx/apache)
+- 512MB RAM (minimum)
+- Internet connection for AI APIs
+- Optional reverse proxy (nginx/apache)
 
 ### Monitoring
 - Health-Check: `GET /api/health`
 - Logs: Standard Python logging
-- Metriken: Provider-Status über API
+- Metrics: Provider status via API
 
 ### Security
-Siehe [SECURITY.md](../SECURITY.md) für detaillierte Sicherheitshinweise:
-- HTTPS in Produktion verwenden
-- API-Schlüssel sicher verwalten
-- Rate-Limiting konfigurieren
-- Sicherheits-Headers aktiviert
+See [SECURITY.md](../SECURITY.md) for detailed security guidelines:
+- Use HTTPS in production
+- Manage API keys securely
+- Configure rate limiting
+- Security headers enabled
 
-## Fehlerbehebung
+## Troubleshooting
 
-### Häufige Probleme
-1. **Keine Provider verfügbar**
-   - API-Schlüssel in .env prüfen
-   - Netzwerkverbindung testen
+### Common Issues
+1. **No providers available**
+   - Check API keys in .env
+   - Test network connection
 
-2. **Plugin lädt nicht**
-   - Syntaxfehler in Plugin-Datei
-   - BaseAIProvider nicht korrekt implementiert
+2. **Plugin not loading**
+   - Syntax error in plugin file
+   - BaseAIProvider not correctly implemented
 
-3. **Tests schlagen fehl**
-   - Test-API-Schlüssel verwenden
-   - Mocks für externe APIs prüfen
+3. **Tests failing**
+   - Use test API keys
+   - Check mocks for external APIs
 
-### Debug-Modus
+### Debug Mode
 ```bash
 export FLASK_ENV=development
 export FLASK_DEBUG=1
 python app.py
 ```
 
-### Logs prüfen
+### Check logs
 ```bash
-# Aktuelle Logs
+# Current logs
 tail -f logs/ai-ticker.log
 
-# Provider-Status
+# Provider status
 curl http://localhost:8080/api/health
 ```

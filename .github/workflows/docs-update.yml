@@ -1,0 +1,189 @@
+name: Documentation Updates
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '**.py'
+      - 'docs/**'
+      - 'README.md'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-docs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+    
+    - name: Install documentation tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install sphinx sphinx-rtd-theme pydocstyle
+    
+    - name: Generate API Documentation
+      run: |
+        echo "📚 Generating API documentation..."
+        
+        # Create API docs directory
+        mkdir -p docs/api
+        
+        # Generate plugin system documentation
+        python -c "
+        import inspect
+        import sys
+        sys.path.append('.')
+        
+        # Import plugin modules
+        from plugins.base_provider import BaseAIProvider, AIProviderPlugin
+        from plugins.plugin_manager import PluginManager
+        from plugins.registry import PluginRegistry
+        from plugin_client import PluginAwareAIClient
+        
+        # Generate documentation for each class
+        classes = [
+            BaseAIProvider,
+            AIProviderPlugin, 
+            PluginManager,
+            PluginRegistry,
+            PluginAwareAIClient
+        ]
+        
+        docs_content = []
+        docs_content.append('# API Documentation\n')
+        docs_content.append('Auto-generated API documentation for AI-Ticker plugin system.\n\n')
+        
+        for cls in classes:
+            docs_content.append(f'## {cls.__name__}\n')
+            docs_content.append(f'{cls.__doc__ or \"No description available.\"}\n\n')
+            
+            # Get methods
+            methods = [method for method in dir(cls) if not method.startswith('_')]
+            if methods:
+                docs_content.append('### Methods:\n')
+                for method in methods:
+                    try:
+                        method_obj = getattr(cls, method)
+                        if callable(method_obj):
+                            docs_content.append(f'- **{method}()**: {method_obj.__doc__ or \"No description\"}\n')
+                    except:
+                        pass
+                docs_content.append('\n')
+        
+        # Write to file
+        with open('docs/api/README.md', 'w') as f:
+            f.write(''.join(docs_content))
+        
+        print('✅ API documentation generated')
+        "
+    
+    - name: Update Plugin Documentation
+      run: |
+        echo "🔌 Updating plugin documentation..."
+        
+        python -c "
+        import json
+        import sys
+        sys.path.append('.')
+        
+        # Generate plugin registry documentation
+        from plugins.builtin.openrouter_provider import OpenRouterPlugin
+        from plugins.builtin.together_provider import TogetherPlugin
+        from plugins.builtin.deepinfra_provider import DeepInfraPlugin
+        
+        plugins = [OpenRouterPlugin, TogetherPlugin, DeepInfraPlugin]
+        
+        plugin_docs = []
+        plugin_docs.append('# Built-in Providers\n\n')
+        plugin_docs.append('List of all built-in AI providers available in AI-Ticker.\n\n')
+        
+        for plugin in plugins:
+            metadata = plugin.metadata
+            plugin_docs.append(f'## {metadata[\"name\"]}\n')
+            plugin_docs.append(f'**Version**: {metadata[\"version\"]}\n')
+            plugin_docs.append(f'**Author**: {metadata[\"author\"]}\n')
+            plugin_docs.append(f'**Description**: {metadata[\"description\"]}\n\n')
+            
+            if 'supported_features' in metadata:
+                plugin_docs.append('**Supported Features**:\n')
+                for feature in metadata['supported_features']:
+                    plugin_docs.append(f'- {feature}\n')
+                plugin_docs.append('\n')
+        
+        # Write to file
+        with open('docs/PROVIDERS.md', 'w') as f:
+            f.write(''.join(plugin_docs))
+        
+        print('✅ Provider documentation updated')
+        "
+    
+    - name: Check docstring compliance
+      run: |
+        echo "📝 Checking docstring compliance..."
+        pydocstyle --convention=google . || echo "⚠️ Docstring issues found (non-blocking)"
+    
+    - name: Update changelog
+      run: |
+        echo "📋 Checking changelog..."
+        
+        # Ensure changelog has proper format
+        python -c "
+        import re
+        import datetime
+        
+        with open('CHANGELOG.md', 'r') as f:
+            content = f.read()
+        
+        # Check if there's an unreleased section
+        if '[Unreleased]' not in content:
+            print('ℹ️ Adding Unreleased section to CHANGELOG.md')
+            
+            # Find the first version and add unreleased section above it
+            lines = content.split('\n')
+            for i, line in enumerate(lines):
+                if re.match(r'## \[[\d\.]+\]', line):
+                    unreleased_section = [
+                        '## [Unreleased]',
+                        '',
+                        '### Added',
+                        '- ',
+                        '',
+                        '### Changed', 
+                        '- ',
+                        '',
+                        '### Fixed',
+                        '- ',
+                        '',
+                    ]
+                    lines = lines[:i] + unreleased_section + lines[i:]
+                    break
+            
+            with open('CHANGELOG.md', 'w') as f:
+                f.write('\n'.join(lines))
+        else:
+            print('✅ Changelog format is good')
+        "
+    
+    - name: Commit documentation updates
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        if [ -n "$(git status --porcelain)" ]; then
+          git add docs/ CHANGELOG.md
+          git commit -m "docs: auto-update documentation" || echo "No changes to commit"
+          git push
+          echo "✅ Documentation updated"
+        else
+          echo "ℹ️ No documentation changes to commit"
+        fi

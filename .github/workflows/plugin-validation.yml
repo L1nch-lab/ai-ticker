@@ -1,0 +1,119 @@
+name: Plugin System Validation
+
+on:
+  push:
+    paths:
+      - 'plugins/**'
+      - 'plugin_client.py'
+      - 'plugin_config.json*'
+  pull_request:
+    paths:
+      - 'plugins/**'
+      - 'plugin_client.py'
+      - 'plugin_config.json*'
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  validate-plugins:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Validate Plugin Structure
+      run: |
+        echo "🔍 Validating plugin directory structure..."
+        
+        # Check required directories exist
+        if [ ! -d "plugins/builtin" ]; then
+          echo "❌ Missing plugins/builtin directory"
+          exit 1
+        fi
+        
+        if [ ! -d "plugins/custom" ]; then
+          echo "❌ Missing plugins/custom directory"
+          exit 1
+        fi
+        
+        echo "✅ Plugin directories OK"
+    
+    - name: Test Built-in Providers
+      run: |
+        echo "🧪 Testing built-in providers..."
+        pytest tests/test_builtin_providers.py -v
+    
+    - name: Test Plugin System Core
+      run: |
+        echo "🧪 Testing plugin system core..."
+        pytest tests/test_plugin_system.py -v
+    
+    - name: Test Plugin Integration
+      run: |
+        echo "🧪 Testing plugin integration..."
+        pytest tests/test_integration.py::TestPluginSystemEndToEnd -v
+    
+    - name: Validate Plugin Configuration
+      run: |
+        echo "🔧 Validating plugin configuration..."
+        python -c "
+        import json
+        import sys
+        
+        # Test example configuration
+        try:
+            with open('plugin_config.json.example', 'r') as f:
+                config = json.load(f)
+                print('✅ Example configuration is valid JSON')
+                
+            # Validate structure
+            assert 'providers' in config, 'Missing providers key'
+            assert isinstance(config['providers'], list), 'Providers must be a list'
+            
+            for provider in config['providers']:
+                required_keys = ['name', 'api_key', 'base_url', 'model']
+                for key in required_keys:
+                    assert key in provider, f'Missing {key} in provider config'
+                    
+            print('✅ Configuration structure is valid')
+            
+        except Exception as e:
+            print(f'❌ Configuration validation failed: {e}')
+            sys.exit(1)
+        "
+    
+    - name: Test Plugin Discovery
+      run: |
+        echo "🔍 Testing plugin discovery..."
+        python -c "
+        import sys
+        sys.path.append('.')
+        
+        from plugins.plugin_manager import PluginManager
+        from plugins.registry import PluginRegistry
+        
+        # Test plugin manager
+        manager = PluginManager()
+        registry = PluginRegistry()
+        
+        print('✅ Plugin manager and registry work correctly')
+        
+        # Test built-in provider imports
+        from plugins.builtin.openrouter_provider import OpenRouterPlugin
+        from plugins.builtin.together_provider import TogetherPlugin
+        from plugins.builtin.deepinfra_provider import DeepInfraPlugin
+        
+        print('✅ All built-in providers can be imported')
+        print(f'📦 Found plugins: OpenRouter, Together, DeepInfra')
+        "

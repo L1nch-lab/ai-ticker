@@ -13,9 +13,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 -
 
-### Deprecated
--
-
 ### Removed
 -
 
@@ -26,6 +23,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -
 
 ---
+
+## [1.2.0] - 2025-06-01
+
+### Added
+- Improved README with professional formatting and complete API reference
+- Expanded plugin system documentation with detailed examples
+- Professional API endpoints table with method and description columns
+- Comprehensive configuration examples with all supported AI providers
+- Contributing guidelines and security documentation links
+
+### Changed
+- Enhanced main README with feature highlights and structured sections
+- Improved configuration examples with comprehensive provider support
+- Converted "Tests" section to "Testing" for consistency
+- Enhanced troubleshooting section with debug instructions
+- Standardized Docker deployment documentation
+
+### Removed
+- Redundant configuration files and duplicated content
+- Unnecessary .config directory with duplicate files
+
+### Fixed
+- Documentation language consistency across all markdown files
+- Proper formatting and structure in README and documentation files
+- Inconsistent section naming in documentation
 
 ## [1.1.0] - 2025-06-01
 

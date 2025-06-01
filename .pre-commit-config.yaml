@@ -1,0 +1,76 @@
+# Pre-commit hooks for AI-Ticker
+# Install: pip install pre-commit && pre-commit install
+
+repos:
+  # Code formatting
+  - repo: https://github.com/psf/black
+    rev: 24.4.2
+    hooks:
+      - id: black
+        language_version: python3.13
+
+  # Import sorting
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]
+
+  # Remove unused imports
+  - repo: https://github.com/pycqa/autoflake
+    rev: v2.3.1
+    hooks:
+      - id: autoflake
+        args:
+          - --remove-all-unused-imports
+          - --remove-unused-variables
+          - --in-place
+
+  # Linting
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.1.0
+    hooks:
+      - id: flake8
+        args: [--max-line-length=88, --extend-ignore=E203,W503]
+
+  # Security
+  - repo: https://github.com/pycqa/bandit
+    rev: 1.7.8
+    hooks:
+      - id: bandit
+        args: ["-c", ".bandit"]
+
+  # JSON/YAML validation
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-json
+      - id: check-yaml
+      - id: check-toml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-merge-conflict
+
+  # Plugin system specific checks
+  - repo: local
+    hooks:
+      - id: plugin-validation
+        name: Validate Plugin System
+        entry: python
+        language: system
+        args:
+          - -c
+          - |
+            import sys
+            sys.path.append('.')
+            try:
+                from plugins.plugin_manager import PluginManager
+                from plugins.registry import PluginRegistry
+                manager = PluginManager()
+                registry = PluginRegistry()
+                print("✅ Plugin system validation passed")
+            except Exception as e:
+                print(f"❌ Plugin system validation failed: {e}")
+                sys.exit(1)
+        files: ^plugins/.*\.py$
+        pass_filenames: false
