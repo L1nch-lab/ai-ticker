@@ -74,3 +74,6 @@ MIGRATION_REPORT.md
 CLEANUP_REPORT.md
 *_REPORT.md
 VALIDATION_REPORT.md
+
+# Version Control System metadata
+.hg/
