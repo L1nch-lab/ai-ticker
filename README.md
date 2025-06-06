@@ -103,7 +103,7 @@ We welcome contributions! Please see our [Contributing Guide](docs/CONTRIBUTING.
 
 ## 📋 Requirements
 
-- **Python**: 3.9+ (Python 3.11+ recommended)
+- **Python**: 3.13+ (latest stable version)
 - **API Keys**: At least one AI provider API key
 - **Network**: Internet connection for AI APIs
 - **Memory**: 512MB RAM minimum

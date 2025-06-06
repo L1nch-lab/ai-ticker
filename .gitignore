@@ -77,3 +77,43 @@ VALIDATION_REPORT.md
 
 # Version Control System metadata
 .hg/
+
+# Additional security and cleanup entries
+# Environment and sensitive files
+.env
+.env.local
+.env.production
+
+# Virtual environments  
+.venv/
+venv/
+env/
+
+# Cache and temporary files
+*.pyc
+__pycache__/
+.pytest_cache/
+.coverage
+*.log
+*.tmp
+*.cache
+
+# Runtime data
+message_cache.json
+last_messages.json
+
+# Editor and OS files
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Distribution and packaging
+build/
+dist/
+*.egg-info/
+
+# Backup files
+*.bak
+*.backup
